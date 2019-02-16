@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>For My Sarah</title>
+    <!-- Reset CSS -->
+	<link rel="stylesheet" type="text/css" href="assets/styles/reset.css">
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<!--- Local CSS Styling To Overwrite Bootstrap Styling -->
+	<link rel="stylesheet" type="text/css" href="assets/styles/style.css">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/5.8.3/firebase.js"></script>
+	<!-- Local JavaScript -->
+    <script src="assets/js/callfunctions.js" type="text/javascript" defer></script>
+    <script src="assets/js/nocallfunctions.js" type="text/javascript" defer></script>
+    <script src="assets/js/firebasefunctions.js" type="text/javascript" defer></script>
+    <!-- jQuery Script -->
+	<script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+	<!-- Moment.js Script -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
+</head>
+<br>
+<body class="c-container / t--dark">
+
+    <!-- Wrapping Container -->
+    <div class="container t-menu t-border"><br>
+
+        <!-- Jumbtron With Instructions -->
+		<div class="panel t-menu__item t-border centered">
+			<h1>Planner For My Sarah</h1>
+        </div>
+
+        <!-- Set New Starting Address -->
+		<div class="panel t-menu t-border">
+			<div class="panel-heading t-menu__item t-border">
+				<h3>Set Starting Address:</h3>
+			</div>
+			<div class="panel-body t-menu__item t-border">
+				<form id="formStartAddress">
+					<div class="form-group col-md-6">
+						<label for="text">Street Address</label>
+						<input type="text" class="form-control" id="start-address" placeholder="Ex: 123 Street Address">
+					</div>
+					<div class="form-group col-md-3">
+						<label for="text">City</label>
+						<input type="text" class="form-control" id="start-city" placeholder="Ex: Raleigh">
+					</div>
+					<div class="form-group col-md-3">
+						<label for="text">Zip Code</label>
+						<input type="text" class="form-control" id="start-zip" placeholder="Ex: 27516">
+					</div>
+                </form>
+                <button type="submit" class="o-menu__item t-border btn btn-primary z" id="add-start"></button>
+                <button type="submit" class="o-menu__item t-border btn btn-primary z" id="remove-start"></button>
+            </div>
+            <div class="panel-body t-menu__item t-border renderStartAddress">
+                <table class="table t-menu__item">
+                    <thead class='t-menu__item'>
+                        <tr>
+                            <th>Current Starting Address</th>
+                            <th>City</th>
+                            <th>Zip Code</th>
+                        </tr>
+                    </thead>
+                    <!-- Distance For Starting Destination Info Renders Here -->
+                    <tbody id="add-startAddressRow"></tbody>
+                </table>
+            </div>
+		</div>
+
+        <!-- Form Add New Destination Address Input -->
+		<div class="panel t-menu t-border">
+			<div class="panel-heading t-menu__item t-border">
+				<h3>Add Destination Addresses:</h3>
+			</div>
+			<div class="panel-body t-menu__item t-border">
+				<form id="formDestAddress">
+					<div class="form-group col-md-3">
+						<label for="text">Street Address</label>
+						<input type="text" class="form-control" id="dest-address" placeholder="Ex: 123 Street Address">
+					</div>
+					<div class="form-group col-md-2">
+						<label for="text">City</label>
+						<input type="text" class="form-control" id="dest-city" placeholder="Ex: Raleigh">
+					</div>
+					<div class="form-group col-md-2">
+						<label for="text">Zip Code</label>
+						<input type="text" class="form-control" id="dest-zip" placeholder="Ex: 27516">
+					</div>
+					<div class="form-group col-md-5">
+						<label for="text">Notes</label>
+						<input type="text" class="form-control" id="dest-notes" placeholder="Ex: Can Include Client Names, Date Showing Is Scheduled, etc">
+                    </div>
+                </form>
+                <button type="submit" class="o-menu__item t-border btn btn-primary z" id="add-destination"></button>
+                <button type="submit" class="o-menu__item t-border btn btn-primary z" id="remove-last"></button>
+                <button type="submit" class="o-menu__item t-border btn btn-primary z" id="clear-all"></button>
+			</div>
+		</div>
+
+        <!-- Display Area For Addresses By Distance From Home -->
+        <div class="panel t-menu t-border">
+			<div class="panel-heading t-menu__item t-border"><h3>Properties to Show:</h3></div>
+			<div class="panel-body t-menu__item">
+				<table class="table t-menu__item">
+					<thead class='t-menu__item'>
+						<tr>
+							<th>Street Address</th>
+							<th>City</th>
+							<th>Zip Code</th>
+                            <th>Notes</th>
+						</tr>
+					</thead>
+					<!-- Distance From Starting Destination Info Renders Here -->
+					<tbody id="add-destAddressRow"></tbody>
+				</table>
+			</div>
+        </div>
+
+        <!-- Display Area For Addresses Sorted By Distance From Home -->
+        <div class="panel t-menu t-border" id='sort-by-sdfh'>
+            <div class="panel-heading t-menu__item t-border"><h3>Sorted By Shortest Distance From Starting Address:</h3></div>
+            <div class="panel-body t-menu__item">
+                <table class="table t-menu__item">
+                    <thead class='t-menu__item'>
+                        <tr>
+                            <th>Street Address</th>
+                            <th>City</th>
+                            <th>Zip Code</th>
+                            <th class='centered'>Miles From Starting Address</th>
+                            <th class='centered'>Estimated Trip Time</th>
+                        </tr>
+                    </thead>
+                    <!-- Distance Between Destinations Info Renders Here -->
+                    <tbody id="add-DistanceFromHomeRow">
+                    </tbody>
+                </table>
+            </div>    
+        </div>
+        
+        <!-- Display Area For Addresses Sorted By Distance From Each Other -->
+        <div class="panel t-menu t-border" id='sort-by-sdfeo'>
+			<div class="panel-heading t-menu__item t-border"><h3>Sorted By Shortest Distance From Each Other:</h3></div>
+			<div class="panel-body t-menu__item">
+				<table class="table t-menu__item">
+					<thead class='t-menu__item'>
+						<tr>
+							<th>Property A</th>
+							<th>Property B</th>
+							<th class='centered'>Miles Between Properties</th>
+                            <th class='centered'>Estimated Trip Time</th>
+						</tr>
+					</thead>
+					<!-- Distance Between Destinations Info Renders Here -->
+					<tbody id="add-DistanceBetweenRow">
+					</tbody>
+                </table>
+            </div>    
+        </div>
+
+        <!-- Option Buttons -->
+        <div class='row'>
+            <div class='btn1 col-md-9'>
+                <button type="submit" class="o-menu__item t-border btn btn-primary z" id="calculate"></button>
+            </div>
+            <div class='btn2 col-md-3'>
+                <button type="submit" class="o-menu__item js-change-theme t-border btn btn-primary z" id="change-theme"></button><br><br>
+            </div>
+        </div>
+    </div>    
+</body>
+</html>
