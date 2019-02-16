@@ -14,7 +14,6 @@ var config = {
 firebase.initializeApp(config);
 var database = firebase.database();
 
-
 // Establish pertinent user input variables for future capture:
 var startAddress = '';
 var startCity = '';
@@ -25,6 +24,7 @@ var destZip;
 var destNotes;
 var milesFromStart;
 var tripTime;
+var destIDs=[];
 
 // On-Click function to add a new starting address to database:
 $('#add-start').on('click', function(event) {
@@ -66,12 +66,14 @@ $('#add-destination').on('click', function(event) {
   database.ref('/DestinationAddress')
     .push(DestinationProperty)
     .then((snapshot) => {
-    const key = snapshot.key;
-    console.log(key);
+    let idkey = snapshot.key;
+    console.log(idkey)
+    destIDs.push(idkey);
     });
   // Clear Destination Address Input Areas After Submit:
   $("#formDestAddress")[0].reset();
 });
+console.log(destIDs);
 
 // Render information based on inputs to starting address and updates to the directory in the database:
 database.ref('/StartingAddress').on("value", function(childSnapshot) {
@@ -109,9 +111,8 @@ $('#calculate').on('click', function() {
     var startAddress = sstjsa.startAddress;
     var startCity = sstjsa.startCity;
     var startZip = sstjsa.startZip;
-    /* console.log('This is the Starting Address: '+startAddress+' '+startCity+' '+startZip+'.'); */
+    /* console.log('This is the Starting Address: '+startAddress+' '+startCity+' '+startZip+'.'); ---- Working up to here. */
     var destAddress;
-    
     var destCity;
     var destZip;
     var destKey;
