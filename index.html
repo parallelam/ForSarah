@@ -147,17 +147,17 @@
         <div class="panel t-menu t-border" id='sort-by-sdfeo'>
 			<div class="panel-heading t-menu__item t-border"><h3>Sorted By Shortest Distance From Each Other:</h3></div>
 			<div class="panel-body t-menu__item">
-				<table class="table t-menu__item">
-					<thead class='t-menu__item'>
-						<tr>
-							<th>Property A</th>
-							<th>Property B</th>
-							<th class='centered'>Miles Between Properties</th>
-                            <th class='centered'>Estimated Trip Time</th>
-						</tr>
-					</thead>
-					<!-- Distance Between Destinations Info Renders Here -->
-					<tbody id="add-DistanceBetweenRow">
+				<table class="table t-menu__item" id='distancesFromEachOther'>
+					<tbody>
+						<thead class='t-menu__item' id="add-DistanceBetweenRow">
+							<tr>
+								<th onclick="sortTable(0)">Property A</th>
+								<th onclick="sortTable(1)">Property B</th>
+								<th class='centered' onclick="sortTable(2)">Miles Between Addresses</th>
+								<th class='centered' onclick="sortTable(3)">Estimated Trip Time</th>
+							</tr>
+						</thead>
+						<!-- Distance Between Destinations Info Renders Here -->
 					</tbody>
                 </table>
             </div>    

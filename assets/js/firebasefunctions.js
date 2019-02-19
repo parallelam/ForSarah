@@ -42,6 +42,18 @@ var optionsFromOthers = {
   manyToOne:false
 }
 
+// Variable function to convert Firebase database timestamps to beautified dates and times:
+var toHHMMSS = (secs) => {
+  var sec_num = parseInt(secs, 10)    
+  var hours   = Math.floor(sec_num / 3600) % 24
+  var minutes = Math.floor(sec_num / 60) % 60
+  var seconds = sec_num % 60    
+  return [hours,minutes,seconds]
+      .map(v => v < 10 ? "0" + v : v)
+      .filter((v,i) => v !== "00" || i > 0)
+      .join("m ")
+};
+
 // On-Click function to set a new starting address in database:
 $('#add-start').on('click', function(event) {
   // Prevent form refresh after click:
@@ -169,52 +181,81 @@ $('#calculate').on('click', function() {
     data: JSON.stringify(directionRequestA),
     contentType: "application/json",
     dataType: 'json'
-  }).done(function(mqResponse) {
-      var results = mqResponse;
-      fromAddress = fromLocation.street;
-      $('#sort-by-sdfh').show();
-      var toAddresses = [];
-      for (var i = 1; i < results.locations.length; i++) {
-        var toAddress = {
-          milesFromStart: results.distance[i],
-          tripTime: results.time[i],
-          destAddress: results.locations[i].street,
-          destCity: results.locations[i].adminArea5,
-          destZip: results.locations[i].postalCode
+  })
+    .done(function(mqResponse) {
+        var results = mqResponse;
+        fromAddress = fromLocation.street;
+        $('#sort-by-sdfh').show();
+        var toAddresses = [];
+        for (var i = 1; i < results.locations.length; i++) {
+          var toAddress = {
+            milesFromStart: results.distance[i],
+            tripTime: results.time[i],
+            destAddress: results.locations[i].street,
+            destCity: results.locations[i].adminArea5,
+            destZip: results.locations[i].postalCode
+          }
+          toAddresses.push(toAddress);
         }
-        toAddresses.push(toAddress);
-      }
-      toAddresses.sort(function(a, b){return a.milesFromStart - b.milesFromStart});
-      for (var i = 0; i < toAddresses.length; i++){
-        $("#add-DistanceFromHomeRow").append('<tr class="t-menu__item t-border"><td>'+fromAddress+'</td><td>'+toAddresses[i].destAddress+'</td><td>'+toAddresses[i].destCity+'</td><td>'+toAddresses[i].destZip+"</td><td class='centered'>"+toAddresses[i].milesFromStart+"</td><td class='centered'>"+toHHMMSS(toAddresses[i].tripTime)+"</td></tr>");
-      }
-  });
-  $.ajax({
-    type: 'POST',
-    url: mqRouteFinalURL,
-    data: JSON.stringify(directionRequestB),
-    contentType: "application/json",
-    dataType: 'json'
-  }).done(function(mqResponse) {
-      console.log(mqResponse);
-      $('#sort-by-sdfeo').show();
+        toAddresses.sort(function(a, b){return a.milesFromStart - b.milesFromStart});
+        for (var i = 0; i < toAddresses.length; i++){
+          $("#add-DistanceFromHomeRow").append('<tr class="t-menu__item t-border"><td>'+fromAddress+'</td><td>'+toAddresses[i].destAddress+'</td><td>'+toAddresses[i].destCity+'</td><td>'+toAddresses[i].destZip+"</td><td class='centered'>"+toAddresses[i].milesFromStart+"</td><td class='centered'>"+toHHMMSS(toAddresses[i].tripTime)+"</td></tr>");
+        }
     });
+  if (locationsFromOthers < 2) {
+    return $("#add-DistanceBetweenRow").append('<tr><td>This functionality requires 2 or more destination addresses.</td></tr>')
+  } else {
+    $.ajax({
+      type: 'POST',
+      url: mqRouteFinalURL,
+      data: JSON.stringify(directionRequestB),
+      contentType: "application/json",
+      dataType: 'json'
+    })
+      .done(function(mqResponse) {
+          var results = mqResponse;
+          console.log(results);
+          $('#sort-by-sdfeo').show();
+          var totalAddresses = results.locations.length;
+          var base = -0.5;
+          for (var i = 0; i < totalAddresses; i++) {
+            base += 0.5;
+          }
+          var rendersNeeded = parseFloat(totalAddresses*base);
+          var propertyA = [];
+          var propertyB = [];
+          var counterC = 0; // This will increment from 0 to 1 on For Loop Child completion
+          var counterD = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
+            for (var i = 0; i < rendersNeeded; i++) { // For Loop Parent  
+                for (var j = counterD; j > 0; j--) { // For Loop Child
+                  propertyA.push(results.locations[counterC].street)
+                  console.log('Pushing '+results.locations[counterC].street+' to propertyA.')
+                }  // At the end of the first For Loop Child propertyA should = [results.locations[0].street, results.locations[0].street]
+                counterD--;
+                counterC++;
+            }
+          var counterE = results.locations.length; // Set number equivalent to array length
+          console.log(counterE);
+          var counterF = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
+            for (var k = 0; k < rendersNeeded; k++) { // For Loop Parent  
+              for (var l = counterF; l > 0; l--) { // For Loop Child
+                propertyB.push(results.locations[counterE].street)
+              }  
+                // At the end of the first For Loop Child propertyA should = [results.locations[0].street, results.locations[0].street]
+              counterE--;
+              counterF--;
+            }
+          console.log(propertyA);
+          console.log(propertyB);
+          var miles = [results.distance[0][1], results.distance[0][2], results.distance[1][2]];
+          var eta = [results.time[0][1], results.time[0][2], results.time[1][2]];
+          for (var i = 0; i < rendersNeeded; i++) {
+            $("#add-DistanceBetweenRow").append('<tr><td>'+propertyA[i]+'</td><td>'+propertyB[i]+'</td><td class="centered">'+miles[i]+'</td><td class="centered">'+toHHMMSS(eta[i])+'</td></tr>')
+          }  
+      });
+    };
 });
       /*
-        var totalAddresses = mqResponse.length // Return integer 3
-        var base = 0 // Default amount of table renders required
-        for (var i = 0; i < totalAddresses.length; i++){
-          base+0.5 // For each address in array add 0.5 to base
-        }
-        var rendersNeeded = totalAddresses*base
-        if (rendersNeeded < 1) {
-          return $("#add-DistanceBetweenRow").append('<tr><td>This function does not work with only one destination address.</td></tr>')
-        } else {
-            for (var i = 0; i < rendersNeeded; i++){
-              $("#add-DistanceBetweenRow").append('<tr><td>test</td></tr>')
-            }
-        }
-
         route for 245 Ruby Ridge Rd to 245 Ruby Ridge Rd is 0 miles and will take 0 seconds
         which equates to: response[0].destAddress to response[0].destAddress is response[0].distancesFromOthers[0] miles and will take response[0].tripTime[0] seconds
         route for 245 Ruby Ridge Rd to 1415 Hearthside St is 5.566 miles and will take 677 seconds
@@ -222,116 +263,49 @@ $('#calculate').on('click', function() {
         route for 245 Ruby Ridge Rd to 3517 Marquis Dr is 7.246 miles and will take 779 seconds
         which equates to: response[0].destAddress to response[2].destAddress is response[0].distancesFromOthers[2] miles and will take response[0].tripTime[2] seconds
 
-        Create objects for the above information:
-
-        var addressObjects = [];
-
-        var addressObjectRubyRidgeRd = response[0] = {
-          selfAddress: response[0].destAddress,
-          otherAddress1: response[1].destAddress,
-          otherAddress2: response[2].destAddress,
-          milesToSelfAddress: response[0].distancesFromOthers[0],
-          milesToOtherAddress1: response[0].distancesFromOthers[1],
-          milesToOtherAddress2: response[0].distancesFromOthers[2],
-          selfTripTime: response[0].tripTime[0],
-          tipTimeToOther1: response[0].tripTime[1],
-          tipTimeToOther2: response[0].tripTime[2]
-        }
-        var addressObjectHearthsideSt = response[1] = {
-          selfAddress: response[1].destAddress,
-          otherAddress1: response[0].destAddress,
-          otherAddress2: response[2].destAddress,
-          milesToSelfAddress: response[1].distancesFromOthers[1],
-          milesToOtherAddress1: response[1].distancesFromOthers[0],
-          milesToOtherAddress2: response[1].distancesFromOthers[2],
-          selfTripTime: response[1].tripTime[1],
-          tipTimeToOther1: response[1].tripTime[0],
-          tipTimeToOther2: response[1].tripTime[2]
-        }
-        var addressObjectMarquisDr = response[2] = {
-          selfAddress: response[2].destAddress,
-          otherAddress1: response[1].destAddress,
-          otherAddress2: response[0].destAddress,
-          milesToSelfAddress: response[2].distancesFromOthers[2],
-          milesToOtherAddress1: response[2].distancesFromOthers[1],
-          milesToOtherAddress2: response[2].distancesFromOthers[0],
-          selfTripTime: response[2].tripTime[2],
-          tipTimeToOther1: response[2].tripTime[1],
-          tipTimeToOther2: response[2].tripTime[2]
-        }
-        
-        for (var i = 0; response.length; i++) {
-            create new addressObject;
-        }
-
-        for (var i = 0; i < totalPossibleDestinations; i++) {
-          create new property 
-        }
-
-        With 1 Addresses Need 00 renders; increase of 0 to TotalRenders; or TotalAddresses multipled by base=0
-        With 2 Addresses Need 01 renders; increase of 1 to TotalRenders; or TotalAddresses multipled by base=0.5
-        With 3 Addresses Need 03 renders; increase of 2 to TotalRenders; or TotalAddresses multipled by base=1
-        With 4 Addresses Need 06 renders; increase of 3 to TotalRenders; or TotalAddresses multipled by base=1.5
-        With 5 Addresses Need 10 renders; increase of 4 to TotalRenders; or TotalAddresses multipled by base=2
-        With 6 Addresses Need 15 renders; increase of 5 to TotalRenders; or TotalAddresses multipled by base=2.5
-        With 7 Addresses Need 21 renders; increase of 6 to TotalRenders; or TotalAddresses multipled by base=3
-        With 8 Addresses Need 28 renders; increase of 7 to TotalRenders; or TotalAddresses multipled by base=3.5
-        Total necessary appends to Property A & B columns for comparison = RendersNeeded
-        Total Addresses = [A1, A2, A3, A4, A5, A6]; total possible routes = TotalAddresses*TotalAddresses (or 6 in this case) including from self, ie point a to point a route possibilities.
-        A1 =/= A1
-        A1 -> A2
-        A1 -> A3
-        A1 -> A4
-        A1 -> A5
-        A1 -> A6
-
-        A2 =/= A2
-        A2 =/= A1
-        A2 -> A3
-        A2 -> A4
-        A2 -> A5
-        A2 -> A6
-        
-        A3 =/= A3
-        A3 =/= A2
-        A3 =/= A1
-        A3 -> A4
-        A3 -> A5
-        A3 -> A6
-        
-        A4 =/= A4
-        A4 =/= A1
-        A4 =/= A2
-        A4 =/= A3
-        A4 -> A5
-        A4 -> A6
-
-        A5 =/= A1
-        A5 =/= A2
-        A5 =/= A3
-        A5 =/= A4
-        A5 =/= A5
-        A5 -> A6
-        
-        A6 =/= A1
-        A6 =/= A1
-        A6 =/= A1
-        A6 =/= A1
-        A6 =/= A1
-        A6 =/= A1
-      }
-      */
   
-var toHHMMSS = (secs) => {
-  var sec_num = parseInt(secs, 10)    
-  var hours   = Math.floor(sec_num / 3600) % 24
-  var minutes = Math.floor(sec_num / 60) % 60
-  var seconds = sec_num % 60    
-  return [hours,minutes,seconds]
-      .map(v => v < 10 ? "0" + v : v)
-      .filter((v,i) => v !== "00" || i > 0)
-      .join(":")
-}
+  var counterB = 1;
+
+  if (propertyB < rendersNeeded) {  
+    
+  }
+
+
+      for (var i = counterD; i > 0; i--) {
+        propertyA.push(results.locations[counterC].street)
+      } // This for loop will push results.locations[1].street to array propertyA a total of 1 times
+    counterD--;
+    counterC++;
+  }
+
+  for (var i = 0; i < counterD; i++) {
+
+  }
+
+ function () {
+   propertyA.push(results.locations[counterC].street) this many times (which is counterD or 2 in this case)
+ }
+
+
+Properties = 245 Ruby Ridge Rd = results.locations[0].street // Insert At Property A = var rendersNeeded - 1; or 2 times // Insert At Property B = var rendersNeeded - 3; or 0 times
+           = 1415 Hearthside St = results.locations[1].street // Insert at Property A = var rendersNeeded - 2; or 1 times // Insert At Property B = var rendersNeeded - 2; or 1 times
+           = 3517 Marquis Dr = results.locations[2].street // Insert At Property A = var rendersNeeded - 3; or 0 times // Insert At Property B = var rendersNeeded - 1; or 2 times
+
+           miles = results.distance[0][1]
+                   results.distance[0][2]
+                   results.distance[1][2]
+
+           time = results.time[0][1]
+                  results.time[0][2]
+                  results.time[1][2]
+
+           Table Looks like:
+
+           Prop A           Prop B                    Miles               Eta
+      245 Ruby Ridge Rd     1415 Hearthside St      
+      245 Ruby Ridge Rd     3517 Marquis Dr
+      1415 Hearthside St    3517 Marquis Dr
+
 
 /* Sample Addresses:
 
