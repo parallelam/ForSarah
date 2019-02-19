@@ -65,3 +65,10 @@
 ::-webkit-input-placeholder {
     text-align: left;
 }
+.btn3, .btn2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+}

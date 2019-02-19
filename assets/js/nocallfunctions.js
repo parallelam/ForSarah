@@ -27,3 +27,4 @@ $('#clear-all').text('Clear All Inputs');
 $('#add-start').text('Set Starting Address')
 $('#remove-start').text('Clear Starting Address')
 $('#calculate').text('Plan My Trip!')
+$('#email-me').text('Email Me')

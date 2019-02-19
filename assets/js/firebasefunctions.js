@@ -5,8 +5,7 @@ var mqGeocodeBaseURL = 'http://www.mapquestapi.com/geocoding/v1/address'
 var mqGeoFinalURL = mqGeocodeBaseURL+mqApiKey
 var mqRouteFinalURL = mqRouteBaseURL+mqApiKey
 
-
-// Initialize Firebase and establish database variable:
+// Initialize Firebase and establish Firebase database variables:
 var config = {
   apiKey: "AIzaSyBG8qfXJJ8Oe9VZEWm9C7yNpB531ofFr5Q",
   authDomain: "forsarah-96dfe.firebaseapp.com",
@@ -20,7 +19,7 @@ var database = firebase.database();
 var refSA = firebase.database().ref('/StartingAddress');
 var refDA = firebase.database().ref('/DestinationAddress');
 
-// Establish pertinent user input variables for future capture:
+// Establish pertinent user input variables for future capture and assignment:
 var startAddress;
 var startCity;
 var startZip;
@@ -42,7 +41,6 @@ var optionsFromOthers = {
   allToAll:true,
   manyToOne:false
 }
-
 
 // On-Click function to set a new starting address in database:
 $('#add-start').on('click', function(event) {
@@ -198,28 +196,132 @@ $('#calculate').on('click', function() {
     contentType: "application/json",
     dataType: 'json'
   }).done(function(mqResponse) {
-      var results = mqResponse;
-      console.log(results);
+      console.log(mqResponse);
       $('#sort-by-sdfeo').show();
-      var toAddresses = [];
-      for (var i = 0; i < results.locations.length; i++) {
-        var toAddress = {
-          distancesFromOthers: results.distance[i],
-          tripTime: results.time[i],
-          destAddress: results.locations[i].street,
-          destCity: results.locations[i].adminArea5,
-          destZip: results.locations[i].postalCode
-        }
-        toAddresses.push(toAddress);
-      }
-      console.log(toAddresses)
-      toAddresses.map()
-      for (var i = 0; i < toAddresses.length; i++){
-        $("#add-DistanceBetweenRow").append('<tr class="t-menu__item t-border"><td>'+toAddresses[i].destAddress+'</td><td>'+toAddresses[i].destCity+'</td><td>'+toAddresses[i].destZip+"</td><td class='centered'>"+toAddresses[i].milesFromStart+"</td><td class='centered'>"+toHHMMSS(toAddresses[i].tripTime)+"</td></tr>");
-      }
-  });
+    });
 });
+      /*
+        var totalAddresses = mqResponse.length // Return integer 3
+        var base = 0 // Default amount of table renders required
+        for (var i = 0; i < totalAddresses.length; i++){
+          base+0.5 // For each address in array add 0.5 to base
+        }
+        var rendersNeeded = totalAddresses*base
+        if (rendersNeeded < 1) {
+          return $("#add-DistanceBetweenRow").append('<tr><td>This function does not work with only one destination address.</td></tr>')
+        } else {
+            for (var i = 0; i < rendersNeeded; i++){
+              $("#add-DistanceBetweenRow").append('<tr><td>test</td></tr>')
+            }
+        }
 
+        route for 245 Ruby Ridge Rd to 245 Ruby Ridge Rd is 0 miles and will take 0 seconds
+        which equates to: response[0].destAddress to response[0].destAddress is response[0].distancesFromOthers[0] miles and will take response[0].tripTime[0] seconds
+        route for 245 Ruby Ridge Rd to 1415 Hearthside St is 5.566 miles and will take 677 seconds
+        which equates to: response[0].destAddress to response[1].destAddress is response[0].distancesFromOthers[1] miles and will take response[0].tripTime[1] seconds
+        route for 245 Ruby Ridge Rd to 3517 Marquis Dr is 7.246 miles and will take 779 seconds
+        which equates to: response[0].destAddress to response[2].destAddress is response[0].distancesFromOthers[2] miles and will take response[0].tripTime[2] seconds
+
+        Create objects for the above information:
+
+        var addressObjects = [];
+
+        var addressObjectRubyRidgeRd = response[0] = {
+          selfAddress: response[0].destAddress,
+          otherAddress1: response[1].destAddress,
+          otherAddress2: response[2].destAddress,
+          milesToSelfAddress: response[0].distancesFromOthers[0],
+          milesToOtherAddress1: response[0].distancesFromOthers[1],
+          milesToOtherAddress2: response[0].distancesFromOthers[2],
+          selfTripTime: response[0].tripTime[0],
+          tipTimeToOther1: response[0].tripTime[1],
+          tipTimeToOther2: response[0].tripTime[2]
+        }
+        var addressObjectHearthsideSt = response[1] = {
+          selfAddress: response[1].destAddress,
+          otherAddress1: response[0].destAddress,
+          otherAddress2: response[2].destAddress,
+          milesToSelfAddress: response[1].distancesFromOthers[1],
+          milesToOtherAddress1: response[1].distancesFromOthers[0],
+          milesToOtherAddress2: response[1].distancesFromOthers[2],
+          selfTripTime: response[1].tripTime[1],
+          tipTimeToOther1: response[1].tripTime[0],
+          tipTimeToOther2: response[1].tripTime[2]
+        }
+        var addressObjectMarquisDr = response[2] = {
+          selfAddress: response[2].destAddress,
+          otherAddress1: response[1].destAddress,
+          otherAddress2: response[0].destAddress,
+          milesToSelfAddress: response[2].distancesFromOthers[2],
+          milesToOtherAddress1: response[2].distancesFromOthers[1],
+          milesToOtherAddress2: response[2].distancesFromOthers[0],
+          selfTripTime: response[2].tripTime[2],
+          tipTimeToOther1: response[2].tripTime[1],
+          tipTimeToOther2: response[2].tripTime[2]
+        }
+        
+        for (var i = 0; response.length; i++) {
+            create new addressObject;
+        }
+
+        for (var i = 0; i < totalPossibleDestinations; i++) {
+          create new property 
+        }
+
+        With 1 Addresses Need 00 renders; increase of 0 to TotalRenders; or TotalAddresses multipled by base=0
+        With 2 Addresses Need 01 renders; increase of 1 to TotalRenders; or TotalAddresses multipled by base=0.5
+        With 3 Addresses Need 03 renders; increase of 2 to TotalRenders; or TotalAddresses multipled by base=1
+        With 4 Addresses Need 06 renders; increase of 3 to TotalRenders; or TotalAddresses multipled by base=1.5
+        With 5 Addresses Need 10 renders; increase of 4 to TotalRenders; or TotalAddresses multipled by base=2
+        With 6 Addresses Need 15 renders; increase of 5 to TotalRenders; or TotalAddresses multipled by base=2.5
+        With 7 Addresses Need 21 renders; increase of 6 to TotalRenders; or TotalAddresses multipled by base=3
+        With 8 Addresses Need 28 renders; increase of 7 to TotalRenders; or TotalAddresses multipled by base=3.5
+        Total necessary appends to Property A & B columns for comparison = RendersNeeded
+        Total Addresses = [A1, A2, A3, A4, A5, A6]; total possible routes = TotalAddresses*TotalAddresses (or 6 in this case) including from self, ie point a to point a route possibilities.
+        A1 =/= A1
+        A1 -> A2
+        A1 -> A3
+        A1 -> A4
+        A1 -> A5
+        A1 -> A6
+
+        A2 =/= A2
+        A2 =/= A1
+        A2 -> A3
+        A2 -> A4
+        A2 -> A5
+        A2 -> A6
+        
+        A3 =/= A3
+        A3 =/= A2
+        A3 =/= A1
+        A3 -> A4
+        A3 -> A5
+        A3 -> A6
+        
+        A4 =/= A4
+        A4 =/= A1
+        A4 =/= A2
+        A4 =/= A3
+        A4 -> A5
+        A4 -> A6
+
+        A5 =/= A1
+        A5 =/= A2
+        A5 =/= A3
+        A5 =/= A4
+        A5 =/= A5
+        A5 -> A6
+        
+        A6 =/= A1
+        A6 =/= A1
+        A6 =/= A1
+        A6 =/= A1
+        A6 =/= A1
+        A6 =/= A1
+      }
+      */
+  
 var toHHMMSS = (secs) => {
   var sec_num = parseInt(secs, 10)    
   var hours   = Math.floor(sec_num / 3600) % 24
