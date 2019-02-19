@@ -226,30 +226,29 @@ $('#calculate').on('click', function() {
           var propertyB = [];
           var counterC = 0; // This will increment from 0 to 1 on For Loop Child completion
           var counterD = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
+          var counterE = results.locations.length; // Set number equivalent to array length
+          var counterF = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
             for (var i = 0; i < rendersNeeded; i++) { // For Loop Parent  
                 for (var j = counterD; j > 0; j--) { // For Loop Child
                   propertyA.push(results.locations[counterC].street)
-                  console.log('Pushing '+results.locations[counterC].street+' to propertyA.')
-                }  // At the end of the first For Loop Child propertyA should = [results.locations[0].street, results.locations[0].street]
-                counterD--;
+                }
                 counterC++;
+                counterD--;
             }
-          var counterE = results.locations.length; // Set number equivalent to array length
-          console.log(counterE);
-          var counterF = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
+            console.log(propertyA);
             for (var k = 0; k < rendersNeeded; k++) { // For Loop Parent  
-              for (var l = counterF; l > 0; l--) { // For Loop Child
-                propertyB.push(results.locations[counterE].street)
-              }  
-                // At the end of the first For Loop Child propertyA should = [results.locations[0].street, results.locations[0].street]
-              counterE--;
-              counterF--;
+              console.log('executiong 2nd for loop');
+                for (var l = counterF; l > 0; l++) { // For Loop Child
+                  propertyB.push(results.locations[counterE].street)
+                }  
+                counterE--;
+                counterF--;
             }
-          console.log(propertyA);
+          
           console.log(propertyB);
           var miles = [results.distance[0][1], results.distance[0][2], results.distance[1][2]];
           var eta = [results.time[0][1], results.time[0][2], results.time[1][2]];
-          for (var i = 0; i < rendersNeeded; i++) {
+          for (var m = 0; m < rendersNeeded; m++) {
             $("#add-DistanceBetweenRow").append('<tr><td>'+propertyA[i]+'</td><td>'+propertyB[i]+'</td><td class="centered">'+miles[i]+'</td><td class="centered">'+toHHMMSS(eta[i])+'</td></tr>')
           }  
       });
