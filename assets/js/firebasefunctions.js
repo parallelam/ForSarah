@@ -223,11 +223,8 @@ $('#calculate').on('click', function() {
           }
           var rendersNeeded = parseFloat(totalAddresses*base);
           var propertyA = [];
-          var propertyB = [];
           var counterC = 0; // This will increment from 0 to 1 on For Loop Child completion
           var counterD = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
-          var counterE = results.locations.length; // Set number equivalent to array length
-          var counterF = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
             for (var i = 0; i < rendersNeeded; i++) { // For Loop Parent  
                 for (var j = counterD; j > 0; j--) { // For Loop Child
                   propertyA.push(results.locations[counterC].street)
@@ -235,56 +232,25 @@ $('#calculate').on('click', function() {
                 counterC++;
                 counterD--;
             }
-            console.log(propertyA);
-            for (var k = 0; k < rendersNeeded; k++) { // For Loop Parent  
-              console.log('executiong 2nd for loop');
-                for (var l = counterF; l > 0; l++) { // For Loop Child
-                  propertyB.push(results.locations[counterE].street)
-                }  
-                counterE--;
-                counterF--;
-            }
-          
-          console.log(propertyB);
+          var propertyB = [];
+          var counterE = totalAddresses - 1; // Set number equivalent to array length - 1
+          var counterF = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
+          for (var k = 0; k < rendersNeeded; k++) { // For Loop Parent  
+              for (var l = counterF; l > 0; l--) { // For Loop Child
+                propertyB.push(results.locations[counterE].street)
+              }  
+              counterE--;
+              counterF--;
+          }
           var miles = [results.distance[0][1], results.distance[0][2], results.distance[1][2]];
           var eta = [results.time[0][1], results.time[0][2], results.time[1][2]];
           for (var m = 0; m < rendersNeeded; m++) {
-            $("#add-DistanceBetweenRow").append('<tr><td>'+propertyA[i]+'</td><td>'+propertyB[i]+'</td><td class="centered">'+miles[i]+'</td><td class="centered">'+toHHMMSS(eta[i])+'</td></tr>')
+            $("#add-DistanceBetweenRow").append('<tr><td>'+propertyA[m]+'</td><td>'+propertyB[m]+'</td><td class="centered">'+miles[m]+'</td><td class="centered">'+toHHMMSS(eta[m])+'</td></tr>')
           }  
       });
     };
 });
-      /*
-        route for 245 Ruby Ridge Rd to 245 Ruby Ridge Rd is 0 miles and will take 0 seconds
-        which equates to: response[0].destAddress to response[0].destAddress is response[0].distancesFromOthers[0] miles and will take response[0].tripTime[0] seconds
-        route for 245 Ruby Ridge Rd to 1415 Hearthside St is 5.566 miles and will take 677 seconds
-        which equates to: response[0].destAddress to response[1].destAddress is response[0].distancesFromOthers[1] miles and will take response[0].tripTime[1] seconds
-        route for 245 Ruby Ridge Rd to 3517 Marquis Dr is 7.246 miles and will take 779 seconds
-        which equates to: response[0].destAddress to response[2].destAddress is response[0].distancesFromOthers[2] miles and will take response[0].tripTime[2] seconds
-
-  
-  var counterB = 1;
-
-  if (propertyB < rendersNeeded) {  
-    
-  }
-
-
-      for (var i = counterD; i > 0; i--) {
-        propertyA.push(results.locations[counterC].street)
-      } // This for loop will push results.locations[1].street to array propertyA a total of 1 times
-    counterD--;
-    counterC++;
-  }
-
-  for (var i = 0; i < counterD; i++) {
-
-  }
-
- function () {
-   propertyA.push(results.locations[counterC].street) this many times (which is counterD or 2 in this case)
- }
-
+/*
 
 Properties = 245 Ruby Ridge Rd = results.locations[0].street // Insert At Property A = var rendersNeeded - 1; or 2 times // Insert At Property B = var rendersNeeded - 3; or 0 times
            = 1415 Hearthside St = results.locations[1].street // Insert at Property A = var rendersNeeded - 2; or 1 times // Insert At Property B = var rendersNeeded - 2; or 1 times
