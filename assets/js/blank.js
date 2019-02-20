@@ -217,153 +217,97 @@ $('#calculate').on('click', function() {
           console.log(results);
           $('#sort-by-sdfeo').show();
           var totalAddresses = results.locations.length;
-          /* Commenting out code below until I can figure out how to remedy duplicate and self to self comparisons:
           var base = -0.5;
           for (var i = 0; i < totalAddresses; i++) {
             base += 0.5;
           }
           var rendersNeeded = parseFloat(totalAddresses*base);
-          */
-          
           var propertyA = [];
-          var propertyB = [];
-          var miles = [];
-          var eta = [];
-          var counterC = totalAddresses*totalAddresses;
-          var counterD = 0;
-          for (var i = 0; i < totalAddresses; i++) {
-              for (var j = 0; j < totalAddresses; j++) {
-                propertyA.push(results.locations[counterD].street);
-                propertyB.push(results.locations[j].street);
-                miles.push(results.distance[counterD][j]);
-                eta.push(results.time[counterD][j]);
-              }
-              counterD++;
-          }
-          console.log(propertyA)
-          var counterAddy = 1;
-          var daddyAddy = totalAddresses;
-          for (var j = 0; j < totalAddresses; j++) {
-            for (var i = 0; i < propertyA.length; i+=daddyAddy) {
-              var removedA = propertyA.splice(i,counterAddy);
-              var removedB = propertyB.splice(i,counterAddy);/*
-              var removedC = miles.splice(i,1);
-              var removedD = eta.splice(i,1);*/
+          var counterC = 0; // This will increment from 0 to 1 on For Loop Child completion
+          var counterD = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
+            for (var i = 0; i < rendersNeeded; i++) { // For Loop Parent  
+                for (var j = counterD; j > 0; j--) { // For Loop Child
+                  propertyA.push(results.locations[counterC].street)
+                }
+                counterC++;
+                counterD--;
             }
-            counterAddy++;
+          var propertyB = [];
+          var counterE = totalAddresses - 1; // Set number equivalent to array length - 1
+          var counterF = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
+          for (var k = 0; k < rendersNeeded; k++) { // For Loop Parent  
+              for (var l = counterF; l > 0; l--) { // For Loop Child
+                propertyB.push(results.locations[counterE].street)
+              }  
+              counterE--;
+              counterF--;
           }
-          for (var i = 0; i < propertyA.length; i++) {
-            $("#add-DistanceBetweenRow").append('<tr><td>'+propertyA[i]+'</td><td>'+propertyB[i]+'</td><td class="centered">'+miles[i]+'</td><td class="centered">'+toHHMMSS(eta[i])+'</td></tr>')
-          }
-          console.log(propertyA)
-          console.log(propertyB)
-         // console.log(propertyB)
-          //console.log(miles)
-         // console.log(eta)
+          var miles = [results.distance[0][1], results.distance[0][2], results.distance[1][2]];
+          var eta = [results.time[0][1], results.time[0][2], results.time[1][2]];
+          for (var m = 0; m < rendersNeeded; m++) {
+            $("#add-DistanceBetweenRow").append('<tr><td>'+propertyA[m]+'</td><td>'+propertyB[m]+'</td><td class="centered">'+miles[m]+'</td><td class="centered">'+toHHMMSS(eta[m])+'</td></tr>')
+          }  
       });
     };
 });
 /*
-  Table should look like with 3 addresses; renderNeeded = 3; will need -1 from rendersNeeded for propertyA forloop to work
 
-        Prop A           Prop B                    Miles               Eta
-  245 Ruby Ridge Rd     1415 Hearthside St        5.56                677 or 11m 17s
-  245 Ruby Ridge Rd     3517 Marquis Dr           7.246               779 or 12m 59s
-  1415 Hearthside St    3517 Marquis Dr           7.584               871 or 14m 31s
 
-  Table should look like with 4 addresses; rendersNeeded = 6; will need -2 from rendersNeeded for propertyA forloop to work
-
-          Prop A           Prop B                    Miles               Eta
-  245 Ruby Ridge Rd     1415 Hearthside St        5.56                677 or 11m 17s
-  245 Ruby Ridge Rd     3517 Marquis Dr           7.246               779 or 12m 59s
-  245 Ruby Ridge Rd     4225 Bluffs Ln
-  1415 Hearthside St    3517 Marquis Dr           7.584               871 or 14m 31s
-  1415 Hearthside St    4225 Bluffs Ln
-  3517 Marquis Dr       4225 Bluffs Ln
-
-  Table should look like with 5 addresses; rendersNeeded = 10; will need -4 from rendersNeeded for propertyA forloop to work
-
-          Prop A           Prop B                    Miles               Eta
-  245 Ruby Ridge Rd     1415 Hearthside St        5.56                677 or 11m 17s
-  245 Ruby Ridge Rd     3517 Marquis Dr           7.246               779 or 12m 59s
-  245 Ruby Ridge Rd     4225 Bluffs Ln
-  245 Ruby Ridge Rd     316 Lodestone Dr
-  1415 Hearthside St    3517 Marquis Dr           
-  1415 Hearthside St    4225 Bluffs Ln
-  1415 Hearthside St    316 Lodestone Dr
-  3517 Marquis Dr       4225 Bluffs Ln
-  3517 Marquis Dr       316 Lodestone Dr
-  4225 Bluffs Ln        316 Lodestone Dr
-
-ruby to ruby is 0 miles; which =          results.locations[0].street to results.locations[0].street is results.distance[0][0] // unnecessary because self to self / remove 1 keep 3
 ruby to hearthside is 5.566 miles         results.locations[0].street to results.locations[1].street is results.distance[0][1]
 ruby to marquis is 7.246 miles            results.locations[0].street to results.locations[2].street is results.distance[0][2]
-ruby to  bluffs is 10.143 miles           results.locations[0].street to results.locations[3].street is results.distance[0][3]     remove 1 keep 3
-
-hearthside to ruby =                      results.locations[1].street to results.locations[0].street is results.distance[1][0] // unneccessary because duplicate comparison / remove 2 keep 2
-hearthside to hearthside=                 results.locations[1].street to results.locations[1].street is results.distance[1][1] // unneccessary because self to self
-hearthside to marquis                     results.locations[1].street to results.locations[2].street is results.distance[1][2]     remove 2 keep 2
+ruby to  bluffs is 10.143 miles           results.locations[0].street to results.locations[3].street is results.distance[0][3]
+hearthside to ruby =                      results.locations[1].street to results.locations[0].street is results.distance[1][0] // unneccessary because duplicate comparison
+hearthside to marquis                     results.locations[1].street to results.locations[2].street is results.distance[1][2]
 hearthside to bluffs                      results.locations[1].street to results.locations[3].street is results.distance[1][3]
-
-marquis to ruby                           results.locations[2].street to results.locations[0].street is results.distance[2][0] // unneccessary because duplicate comparison / remove 3 keep 1
+marquis to ruby                           results.locations[2].street to results.locations[0].street is results.distance[2][0] // unneccessary because duplicate comparison 
 marquis to hearthside                     results.locations[2].street to results.locations[1].street is results.distance[2][1] // unneccessary because duplicate comparison
-marquis to marquis                        results.locations[2].street to results.locations[2].street is results.distance[2][2] // unneccessary because self to self
-marquis to bluffs                         results.locations[2].street to results.locations[3].street is results.distance[2][3]    remove 3 keep 1
-
-bluffs to ruby                            results.locations[3].street to results.locations[0].street is results.distance[3][0] // unneccessary because duplicate comparison / remove 4 keep 0 for arrays
+marquis to bluffs                         results.locations[2].street to results.locations[3].street is results.distance[2][3]
+bluffs to ruby                            results.locations[3].street to results.locations[0].street is results.distance[3][0] // unneccessary because duplicate comparison 
 bluffs to hearthside                      results.locations[3].street to results.locations[1].street is results.distance[3][1] // unneccessary because duplicate comparison
 bluffs to marquis                         results.locations[3].street to results.locations[2].street is results.distance[3][2] // unneccessary because duplicate comparison   
-bluffs to bluffs                          results.locations[3].street to results.locations[3].street is results.distance[3][3] // unneccessary because self to self   remove 4 keep 0
 
 
-10 to remove from from original array
+Properties = 245 Ruby Ridge Rd = results.locations[0].street // Insert At Property A = var rendersNeeded - 1; or 2 times // Insert At Property B = var rendersNeeded - 3; or 0 times
+           = 1415 Hearthside St = results.locations[1].street // Insert at Property A = var rendersNeeded - 2; or 1 times // Insert At Property B = var rendersNeeded - 2; or 1 times
+           = 3517 Marquis Dr = results.locations[2].street // Insert At Property A = var rendersNeeded - 3; or 0 times // Insert At Property B = var rendersNeeded - 1; or 2 times
 
-first splice clears index 0 and every 4th one after that
+  miles = results.distance[0][1]
+          results.distance[0][2]
+          results.distance[1][2]
 
+  time = results.time[0][1]
+        results.time[0][2]
+        results.time[1][2]
 
-Array B Before Splice:
+        
+/* Sample Addresses:
 
-0: "245 Ruby Ridge Rd" // unnecessary because self to self
-1: "1415 Hearthside St"
-2: "3517 Marquis Dr"
-3: "4225 Bluffs Ln"
-4: "245 Ruby Ridge Rd" // unneccessary because duplicate comparison
-5: "1415 Hearthside St" // unneccessary because self to self
-6: "3517 Marquis Dr"
-7: "4225 Bluffs Ln"
-8: "245 Ruby Ridge Rd" // unneccessary because duplicate comparison / remove 3 keep 1
-9: "1415 Hearthside St" // unneccessary because duplicate comparison
-10: "3517 Marquis Dr" // unneccessary because self to self
-11: "4225 Bluffs Ln"
-12: "245 Ruby Ridge Rd" // unneccessary because duplicate comparison / remove 4 keep 0 for arrays
-13: "1415 Hearthside St" // unneccessary because duplicate comparison
-14: "3517 Marquis Dr" // unneccessary because duplicate comparison   
-15: "4225 Bluffs Ln" // unneccessary because self to self   
+Start: 
+  320 Callandale Ln, Durham, NC 27703
+  7920 ACC Blvd Suite 130, Raleigh, NC 27617
 
-
-Array B After Splice:
-
-0: "1415 Hearthside St"
-1: "3517 Marquis Dr"
-2: "4225 Bluffs Ln"
-3: "245 Ruby Ridge Rd" // unneccessary because duplicate comparison
-4: "3517 Marquis Dr"
-5: "4225 Bluffs Ln"
-6: "245 Ruby Ridge Rd" // unneccessary because duplicate comparison / remove 3 keep 1
-7: "1415 Hearthside St" // unneccessary because duplicate comparison
-8: "4225 Bluffs Ln"
-9: "245 Ruby Ridge Rd" // unneccessary because duplicate comparison / remove 4 keep 0 for arrays
-10: "1415 Hearthside St" // unneccessary because duplicate comparison
-11: "3517 Marquis Dr" // unneccessary because duplicate comparison   
+Destinations:
+  245 Ruby Ridge Rd, Durham, NC 27703
+  1415 Hearthside St, Durham, NC 27707
+  3517 Marquis Dr, Durham, NC 27704
+  4225 Bluffs Ln, Durham, NC 27712
+  316 Lodestone Dr, Durham, NC 27703
+  814 Corona St, Durham, NC 27707
+  3912 Alameda St, Durham, NC 27704
+  803 Sanderson Dr, Durham, NC 27704
 
 
+    
 
-
-
-
-
-
+/*
+$('#remove-start').on('click', function(event) {
+  event.preventDefault();
+  database.ref('/StartAddress').push({
+    startAddress:'',
+    startCity:'',
+    startZip:'',
+    dateStartAdded: ''
+})
 
 
 */
-
