@@ -29,8 +29,7 @@
     <div class="container t-menu t-border"><br>
 
         <!-- Jumbtron With Instructions -->
-		<div class="panel t-menu__item t-border centered">
-			<h1>Planner For My Sarah</h1>
+		<div class="jumbotron t-menu__item t-border centered">
         </div>
 
         <!-- Set New Starting Address -->
@@ -56,18 +55,20 @@
                 <button type="submit" class="o-menu__item t-border btn btn-primary z" id="add-start"></button>
                 
             </div>
-            <div class="panel-body t-menu__item t-border renderStartAddress">
+            <div class="panel-body t-menu__item t-border">
                 <table class="table t-menu__item">
-                    <thead class='t-menu__item'>
-                        <tr>
-                            <th>Current Starting Address Is Set To:</th>
-                            <th>City</th>
-							<th>Zip Code</th>
-							<th class='centered'>Date Set</th>
-                        </tr>
-                    </thead>
-                    <!-- Distance For Starting Destination Info Renders Here -->
-                    <tbody id="add-startAddressRow"></tbody>
+					
+						<thead class='t-menu__item t-border'>
+							<tr>
+								<th class='o-menu__item t-border centered'>Current Starting Address Is Set To</th>
+								<th class='o-menu__item t-border centered'>City</th>
+								<th class='o-menu__item t-border centered'>Zip Code</th>
+								<th class='o-menu__item t-border centered centered'>Date Last Set</th>
+							</tr>
+						</thead>
+						<!-- Distance For Starting Destination Info Renders Here -->
+						<tbody id="add-startAddressRow">
+                    </tbody>
                 </table>
             </div>
 		</div>
@@ -97,27 +98,37 @@
                     </div>
                 </form>
                 <button type="submit" class="o-menu__item t-border btn btn-primary z" id="add-destination"></button>
-                <button type="submit" class="o-menu__item t-border btn btn-primary z" id="remove-last"></button>
-                <button type="submit" class="o-menu__item t-border btn btn-primary z" id="clear-all"></button>
+
 			</div>
 		</div>
 
         <!-- Display Area For Addresses By Distance From Home -->
-        <div class="panel t-menu t-border">
+        <div class="panel t-menu t-border" id='properties-to-show'>
 			<div class="panel-heading t-menu__item t-border"><h3>Properties to Show:</h3></div>
 			<div class="panel-body t-menu__item">
 				<table class="table t-menu__item">
-					<thead class='t-menu__item'>
-						<tr>
-							<th>Street Address</th>
-							<th>City</th>
-							<th>Zip Code</th>
-                            <th>Notes</th>
-						</tr>
-					</thead>
-					<!-- Distance From Starting Destination Info Renders Here -->
-					<tbody id="add-destAddressRow"></tbody>
+					<tbody>
+						<thead class='t-menu__item' id="add-destAddressRow">
+							<tr>
+								<th class='o-menu__item t-border centered'>Street Address</th>
+								<th class='o-menu__item t-border centered'>City</th>
+								<th class='o-menu__item t-border centered'>Zip Code</th>
+								<th class='o-menu__item t-border centered'>Notes</th>
+							</tr>
+						</thead>
+						<!-- Distance From Starting Destination Info Renders Here -->
+					</tbody>
 				</table>
+				<div class='row'>
+					<div class='btn1 col-md-8'>
+					</div>
+					<div class='btn2 col-md-2'>
+						<!--<button type="submit" class="o-menu__item t-border btn btn-primary z" id="remove-last"></button>-->
+					</div>
+					<div class='btn3 col-md-1'>
+						<button type="submit" class="o-menu__item t-border btn btn-primary z" id="clear-all"></button>
+					</div>
+				</div>
 			</div>
         </div>
 
@@ -126,18 +137,18 @@
             <div class="panel-heading t-menu__item t-border"><h3>Sorted By Shortest Distance From Starting Address:</h3></div>
             <div class="panel-body t-menu__item">
                 <table class="table t-menu__item">
-                    <thead class='t-menu__item'>
-                        <tr>
-							<th>From Address</th>
-							<th>To Address</th>
-                            <th>City</th>
-                            <th>Zip Code</th>
-                            <th>Miles From Starting Address</th>
-                            <th>Estimated Trip Time</th>
-                        </tr>
-                    </thead>
-                    <!-- Distance Between Destinations Info Renders Here -->
-                    <tbody id="add-DistanceFromHomeRow">
+					<tbody>
+						<thead class='t-menu__item' id="add-DistanceFromHomeRow">
+							<tr>
+								<th class='o-menu__item t-border centered'>From Address</th>
+								<th class='o-menu__item t-border centered'>To Address</th>
+								<th class='o-menu__item t-border centered'>City</th>
+								<th class='o-menu__item t-border centered'>Zip Code</th>
+								<th class='o-menu__item t-border centered'>Miles From Starting Address</th>
+								<th class='o-menu__item t-border centered'>Estimated Trip Time</th>
+							</tr>
+						</thead>
+						<!-- Distance Between Destinations Info Renders Here -->
                     </tbody>
                 </table>
             </div>    
@@ -151,10 +162,10 @@
 					<tbody>
 						<thead class='t-menu__item' id="add-DistanceBetweenRow">
 							<tr>
-								<th onclick="sortTable(0)">Property A</th>
-								<th onclick="sortTable(1)">Property B</th>
-								<th class='centered' onclick="sortTable(2)">Miles From A to B</th>
-								<th class='centered' onclick="sortTable(3)">Estimated Trip Time</th>
+								<th class='o-menu__item t-border centered' onclick="sortTable(0)">Property A</th>
+								<th class='o-menu__item t-border centered' onclick="sortTable(1)">Property B</th>
+								<th class='o-menu__item t-border centered' onclick="sortTable(2)">Miles From A to B</th>
+								<th class='o-menu__item t-border centered' onclick="sortTable(3)">Estimated Trip Time</th>
 							</tr>
 						</thead>
 						<!-- Distance Between Destinations Info Renders Here -->

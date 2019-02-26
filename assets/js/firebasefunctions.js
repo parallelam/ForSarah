@@ -20,9 +20,6 @@ var refSA = firebase.database().ref('/StartingAddress');
 var refDA = firebase.database().ref('/DestinationAddress');
 
 // Establish pertinent user input variables for future capture and assignment:
-var startAddress;
-var startCity;
-var startZip;
 var destAddress;
 var destCity;
 var destZip;
@@ -42,7 +39,7 @@ var optionsFromOthers = {
   manyToOne:false
 }
 
-// Variable function to convert Firebase database timestamps to beautified dates and times:
+// Variable function to convert trip times from seconds to a readable format:
 var toHHMMSS = (secs) => {
   var sec_num = parseInt(secs, 10)    
   var hours   = Math.floor(sec_num / 3600) % 24
@@ -59,9 +56,9 @@ $('#add-start').on('click', function(event) {
   // Prevent form refresh after click:
   event.preventDefault();
   // Capture user inputs:
-  startAddress = $("#start-address").val().trim();
-  startCity = $("#start-city").val().trim();
-  startZip = $("#start-zip").val().trim();
+  var startAddress = $("#start-address").val().trim();
+  var startCity = $("#start-city").val().trim();
+  var startZip = $("#start-zip").val().trim();
   // Establish variables for MapQuest POST request:
   var ReqBeginningLocationInfo = {
     street: startAddress,
@@ -83,7 +80,7 @@ $('#add-start').on('click', function(event) {
       lng: results.latLng.lng
     };
     // Sets Firebase database to results of POST request:
-    database.ref('/StartingAddress').set(BeginningLocationInfo);
+    refSA.set(BeginningLocationInfo);
   });
   // Clear Start Address Input Areas After Submit:
   $("#formStartAddress")[0].reset();
@@ -120,10 +117,11 @@ $('#add-destination').on('click', function(event) {
       destNotes: destNotes
     };
     // Pushes to Firebase database results of POST request:
-    database.ref('/DestinationAddress').push(DestinationLocationInfo);
+    refDA.push(DestinationLocationInfo);
+    location.reload();
   });
   // Clear Destination Address Input Areas After Submit:
-  $("#formDestAddress")[0].reset();
+  $("#formDestAddress")[0].reset(); 
 });
 
 // Render information based on inputs to starting address and updates to the directory in the database:
@@ -143,26 +141,31 @@ refSA.on("value", function(snapshot) {
   var timestamp = snapshot.val().dateAdded
   var formattedTime = moment(timestamp).format('MMMM Do YYYY h:mm a');
   // Manipulate Start Address DOM to reflect changes:
-  $("#add-startAddressRow").append('<tr class="t-menu__item t-border"><td>'+snapshot.val().street+'</td><td>'+snapshot.val().city+'</td><td>'+snapshot.val().zip+'</td><td class="centered">'+formattedTime+"</td></tr>");
+  $("#add-startAddressRow").append('<tr class="t-menu__item t-border"><td>'+snapshot.val().street+'</td><td class="centered">'+snapshot.val().city+'</td><td class="centered">'+snapshot.val().zip+'</td><td class="centered">'+formattedTime+"</td></tr>");
 });
 
 // Render information based on inputs to destination address and updates to the directory in the database:
 refDA.on("value", function(snapshot) {
-  snapshot.forEach(function(childSnapshot){
-    // Reference database variables for HTML rendering and establish values for variable toLocation to be used later in POST request:
-    toLocation = {
-      street: childSnapshot.val().street,
-      city: childSnapshot.val().city,
-      county: childSnapshot.val().county,
-      state: childSnapshot.val().state,
-      zip: childSnapshot.val().zip
-    };
-    // Pushes toLocation to array locations for later use in POST request:
-    locationsFromHome.push(toLocation);
-    locationsFromOthers.push(toLocation);
-    // Manipulate Destination Address DOM to reflect changes:
-    $("#add-destAddressRow").append('<tr class="t-menu__item t-border"><td>'+childSnapshot.val().street+'</td><td>'+childSnapshot.val().city+'</td><td>'+childSnapshot.val().zip+"</td><td>"+childSnapshot.val().destNotes+"</td></tr>");
-  });
+  if (snapshot.toJSON() === null) {
+    $('#properties-to-show').hide();
+  } else {
+    $('#properties-to-show').show();
+    snapshot.forEach(function(childSnapshot){
+      // Reference database variables for HTML rendering and establish values for variable toLocation to be used later in POST request:
+      toLocation = {
+        street: childSnapshot.val().street,
+        city: childSnapshot.val().city,
+        county: childSnapshot.val().county,
+        state: childSnapshot.val().state,
+        zip: childSnapshot.val().zip
+      };
+      // Pushes toLocation to array locations for later use in POST request:
+      locationsFromHome.push(toLocation);
+      locationsFromOthers.push(toLocation);
+      // Manipulate Destination Address DOM to reflect changes:
+      $("#add-destAddressRow").append('<tr class="t-menu__item t-border"><td>'+childSnapshot.val().street+'</td><td class="centered">'+childSnapshot.val().city+'</td><td class="centered">'+childSnapshot.val().zip+"</td><td>"+childSnapshot.val().destNotes+"</td></tr>");
+  })
+  };
 });
 
 // On-Click function to initiate AJAX call:
@@ -199,7 +202,7 @@ $('#calculate').on('click', function() {
         }
         toAddresses.sort(function(a, b){return a.milesFromStart - b.milesFromStart});
         for (var i = 0; i < toAddresses.length; i++){
-          $("#add-DistanceFromHomeRow").append('<tr class="t-menu__item t-border"><td>'+fromAddress+'</td><td>'+toAddresses[i].destAddress+'</td><td>'+toAddresses[i].destCity+'</td><td>'+toAddresses[i].destZip+"</td><td class='centered'>"+toAddresses[i].milesFromStart+"</td><td class='centered'>"+toHHMMSS(toAddresses[i].tripTime)+"</td></tr>");
+          $("#add-DistanceFromHomeRow").append('<tr class="t-menu__item t-border"><td>'+fromAddress+'</td><td>'+toAddresses[i].destAddress+'</td><td class="centered">'+toAddresses[i].destCity+'</td><td class="centered">'+toAddresses[i].destZip+"</td><td class='centered'>"+toAddresses[i].milesFromStart+"</td><td class='centered'>"+toHHMMSS(toAddresses[i].tripTime)+"</td></tr>");
         }
     });
   if (locationsFromOthers < 2) {
@@ -224,45 +227,42 @@ $('#calculate').on('click', function() {
           }
           var rendersNeeded = parseFloat(totalAddresses*base);
           */
-          
           var propertyA = [];
           var propertyB = [];
           var miles = [];
           var eta = [];
-          var counterC = totalAddresses*totalAddresses;
-          var counterD = 0;
           for (var i = 0; i < totalAddresses; i++) {
-              for (var j = 0; j < totalAddresses; j++) {
-                propertyA.push(results.locations[counterD].street);
-                propertyB.push(results.locations[j].street);
-                miles.push(results.distance[counterD][j]);
-                eta.push(results.time[counterD][j]);
-              }
-              counterD++;
-          }
-          console.log(propertyA)
-          var counterAddy = 1;
-          var daddyAddy = totalAddresses;
-          for (var j = 0; j < totalAddresses; j++) {
-            for (var i = 0; i < propertyA.length; i+=daddyAddy) {
-              var removedA = propertyA.splice(i,counterAddy);
-              var removedB = propertyB.splice(i,counterAddy);/*
-              var removedC = miles.splice(i,1);
-              var removedD = eta.splice(i,1);*/
+            for (var j = 0; j < totalAddresses; j++) {
+              propertyA.push(results.locations[i].street);
+              propertyB.push(results.locations[j].street);
+              miles.push(results.distance[i][j]);
+              eta.push(results.time[i][j]);
             }
-            counterAddy++;
+          }
+          for (var i = 0; i < propertyA.length; i+=totalAddresses) {
+            var removedA = propertyA.splice(i,1);
+            var removedB = propertyB.splice(i,1);
+            var removedC = miles.splice(i,1);
+            var removedD = eta.splice(i,1);
           }
           for (var i = 0; i < propertyA.length; i++) {
-            $("#add-DistanceBetweenRow").append('<tr><td>'+propertyA[i]+'</td><td>'+propertyB[i]+'</td><td class="centered">'+miles[i]+'</td><td class="centered">'+toHHMMSS(eta[i])+'</td></tr>')
+            parseFloat(miles[i].toFixed(2))
+            $("#add-DistanceBetweenRow").append('<tr class="t-menu__item t-border"><td>'+propertyA[i]+'</td><td>'+propertyB[i]+'</td><td class="centered">'+miles[i]+'</td><td class="centered">'+toHHMMSS(eta[i])+'</td></tr>')
           }
-          console.log(propertyA)
-          console.log(propertyB)
-         // console.log(propertyB)
-          //console.log(miles)
-         // console.log(eta)
+          sortTable(3);
       });
     };
 });
+
+$('#clear-all').on('click', function(event){
+  event.preventDefault();
+  refDA.remove();
+  refDA.on("value", function(snapshot){
+  console.log(snapshot.toJSON());
+  })
+  location.reload();
+})
+
 /*
   Table should look like with 3 addresses; renderNeeded = 3; will need -1 from rendersNeeded for propertyA forloop to work
 
@@ -356,10 +356,12 @@ Array B After Splice:
 10: "1415 Hearthside St" // unneccessary because duplicate comparison
 11: "3517 Marquis Dr" // unneccessary because duplicate comparison   
 
+address[i] = new 
 
 
 
 
+function AddressToRender()
 
 
 
