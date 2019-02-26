@@ -5,9 +5,7 @@ A project designed for my lovely girlfriend Sarah that will allow aid her in mak
 
 v(2.0) TODO:
 
- Remove Last Input Function
- 
- Clear All Inputs Function
+ Fix Remove Last Input Function
  
  Incorporate Zillow API
  
