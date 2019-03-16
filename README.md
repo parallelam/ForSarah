@@ -12,3 +12,11 @@ v(2.0) TODO:
  v(1.0) - **Completed**
  
  Search for selected addresses and return relevant distance information from a cenetral starting point, from each other address input and travel times in an organized, sorted manner.
+
+
+
+[Firebase Web Documentation](https://firebase.google.com/docs/web/setup)
+
+[MomentJS Documentation](http://momentjs.com/)
+
+[W3 Article on Local Storage](https://www.w3schools.com/html/html5_webstorage.asp)
