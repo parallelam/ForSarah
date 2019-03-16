@@ -18,5 +18,3 @@ v(2.0) TODO:
 [Firebase Web Documentation](https://firebase.google.com/docs/web/setup)
 
 [MomentJS Documentation](http://momentjs.com/)
-
-[W3 Article on Local Storage](https://www.w3schools.com/html/html5_webstorage.asp)
