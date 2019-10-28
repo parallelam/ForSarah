@@ -1,18 +1,18 @@
 // Set MapQuest information to variables for future concatenation:
 var mqApiKey = '?key=ZzaGO8COL1AF8qgAd3D4cjIUfXsjKtYC';
-var mqRouteBaseURL = 'http://www.mapquestapi.com/directions/v2/routematrix'
-var mqGeocodeBaseURL = 'http://www.mapquestapi.com/geocoding/v1/address'
-var mqGeoFinalURL = mqGeocodeBaseURL+mqApiKey
-var mqRouteFinalURL = mqRouteBaseURL+mqApiKey
+var mqRouteBaseURL = 'https://www.mapquestapi.com/directions/v2/routematrix';
+var mqGeocodeBaseURL = 'https://www.mapquestapi.com/geocoding/v1/address';
+var mqGeoFinalURL = mqGeocodeBaseURL + mqApiKey;
+var mqRouteFinalURL = mqRouteBaseURL + mqApiKey;
 
 // Initialize Firebase and establish Firebase database variables:
 var config = {
-  apiKey: "AIzaSyBG8qfXJJ8Oe9VZEWm9C7yNpB531ofFr5Q",
-  authDomain: "forsarah-96dfe.firebaseapp.com",
-  databaseURL: "https://forsarah-96dfe.firebaseio.com",
-  projectId: "forsarah-96dfe",
-  storageBucket: "forsarah-96dfe.appspot.com",
-  messagingSenderId: "621317608688"
+  apiKey: 'AIzaSyBG8qfXJJ8Oe9VZEWm9C7yNpB531ofFr5Q',
+  authDomain: 'forsarah-96dfe.firebaseapp.com',
+  databaseURL: 'https://forsarah-96dfe.firebaseio.com',
+  projectId: 'forsarah-96dfe',
+  storageBucket: 'forsarah-96dfe.appspot.com',
+  messagingSenderId: '621317608688'
 };
 firebase.initializeApp(config);
 var database = firebase.database();
@@ -34,24 +34,24 @@ var toLocation;
 var locationsFromHome = [];
 var locationsFromOthers = [];
 var optionsFromHome = {
-  allToAll:false,
-  manyToOne:false
+  allToAll: false,
+  manyToOne: false
 };
 var optionsFromOthers = {
-  allToAll:true,
-  manyToOne:false
-}
+  allToAll: true,
+  manyToOne: false
+};
 
 // Variable function to convert Firebase database timestamps to beautified dates and times:
 var toHHMMSS = (secs) => {
-  var sec_num = parseInt(secs, 10)    
-  var hours   = Math.floor(sec_num / 3600) % 24
-  var minutes = Math.floor(sec_num / 60) % 60
-  var seconds = sec_num % 60    
-  return [hours,minutes,seconds]
-      .map(v => v < 10 ? "0" + v : v)
-      .filter((v,i) => v !== "00" || i > 0)
-      .join("m ")
+  var sec_num = parseInt(secs, 10);
+  var hours = Math.floor(sec_num / 3600) % 24;
+  var minutes = Math.floor(sec_num / 60) % 60;
+  var seconds = sec_num % 60;
+  return [hours, minutes, seconds]
+    .map((v) => (v < 10 ? '0' + v : v))
+    .filter((v, i) => v !== '00' || i > 0)
+    .join('m ');
 };
 
 // On-Click function to set a new starting address in database:
@@ -59,9 +59,15 @@ $('#add-start').on('click', function(event) {
   // Prevent form refresh after click:
   event.preventDefault();
   // Capture user inputs:
-  startAddress = $("#start-address").val().trim();
-  startCity = $("#start-city").val().trim();
-  startZip = $("#start-zip").val().trim();
+  startAddress = $('#start-address')
+    .val()
+    .trim();
+  startCity = $('#start-city')
+    .val()
+    .trim();
+  startZip = $('#start-zip')
+    .val()
+    .trim();
   // Establish variables for MapQuest POST request:
   var ReqBeginningLocationInfo = {
     street: startAddress,
@@ -69,7 +75,7 @@ $('#add-start').on('click', function(event) {
     postalCode: startZip
   };
   // Submit MapQuest POST request for Firebase database manipulation:
-  $.post(mqGeoFinalURL, ReqBeginningLocationInfo).done(function(mqGeoResponse){
+  $.post(mqGeoFinalURL, ReqBeginningLocationInfo).done(function(mqGeoResponse) {
     var results = mqGeoResponse.results[0].locations[0];
     var BeginningLocationInfo = {
       dateAdded: firebase.database.ServerValue.TIMESTAMP,
@@ -86,7 +92,7 @@ $('#add-start').on('click', function(event) {
     database.ref('/StartingAddress').set(BeginningLocationInfo);
   });
   // Clear Start Address Input Areas After Submit:
-  $("#formStartAddress")[0].reset();
+  $('#formStartAddress')[0].reset();
 });
 
 // On-Click function to add a new destination address to database:
@@ -94,10 +100,18 @@ $('#add-destination').on('click', function(event) {
   // Prevent form refresh after click:
   event.preventDefault();
   // Capture user inputs:
-  destAddress = $("#dest-address").val().trim();
-  destCity = $("#dest-city").val().trim();
-  destZip = $("#dest-zip").val().trim();
-  destNotes = $("#dest-notes").val().trim();
+  destAddress = $('#dest-address')
+    .val()
+    .trim();
+  destCity = $('#dest-city')
+    .val()
+    .trim();
+  destZip = $('#dest-zip')
+    .val()
+    .trim();
+  destNotes = $('#dest-notes')
+    .val()
+    .trim();
   // Establish variables for MapQuest POST request:
   var ReqDestinationLocationInfo = {
     street: destAddress,
@@ -105,7 +119,7 @@ $('#add-destination').on('click', function(event) {
     postalCode: destZip
   };
   // Submit MapQuest POST request for Firebase database manipulation:
-  $.post(mqGeoFinalURL, ReqDestinationLocationInfo).done(function(mqGeoResponse){
+  $.post(mqGeoFinalURL, ReqDestinationLocationInfo).done(function(mqGeoResponse) {
     var results = mqGeoResponse.results[0].locations[0];
     var DestinationLocationInfo = {
       dateAdded: firebase.database.ServerValue.TIMESTAMP,
@@ -123,13 +137,13 @@ $('#add-destination').on('click', function(event) {
     database.ref('/DestinationAddress').push(DestinationLocationInfo);
   });
   // Clear Destination Address Input Areas After Submit:
-  $("#formDestAddress")[0].reset();
+  $('#formDestAddress')[0].reset();
 });
 
 // Render information based on inputs to starting address and updates to the directory in the database:
-refSA.on("value", function(snapshot) {
+refSA.on('value', function(snapshot) {
   // Clear any pre-existing HTML and renders as there can only be one starting address:
-  $("#add-startAddressRow").html('');
+  $('#add-startAddressRow').html('');
   // Reference database variables for HTML rendering and establish values for variable fromLocation to be used later in POST request:
   fromLocation = {
     street: snapshot.val().street,
@@ -140,15 +154,25 @@ refSA.on("value", function(snapshot) {
   };
   // Pushes fromLocation to array locations for later use in POST request:
   locationsFromHome.push(fromLocation);
-  var timestamp = snapshot.val().dateAdded
+  var timestamp = snapshot.val().dateAdded;
   var formattedTime = moment(timestamp).format('MMMM Do YYYY h:mm a');
   // Manipulate Start Address DOM to reflect changes:
-  $("#add-startAddressRow").append('<tr class="t-menu__item t-border"><td>'+snapshot.val().street+'</td><td>'+snapshot.val().city+'</td><td>'+snapshot.val().zip+'</td><td class="centered">'+formattedTime+"</td></tr>");
+  $('#add-startAddressRow').append(
+    '<tr class="t-menu__item t-border"><td>' +
+      snapshot.val().street +
+      '</td><td>' +
+      snapshot.val().city +
+      '</td><td>' +
+      snapshot.val().zip +
+      '</td><td class="centered">' +
+      formattedTime +
+      '</td></tr>'
+  );
 });
 
 // Render information based on inputs to destination address and updates to the directory in the database:
-refDA.on("value", function(snapshot) {
-  snapshot.forEach(function(childSnapshot){
+refDA.on('value', function(snapshot) {
+  snapshot.forEach(function(childSnapshot) {
     // Reference database variables for HTML rendering and establish values for variable toLocation to be used later in POST request:
     toLocation = {
       street: childSnapshot.val().street,
@@ -161,94 +185,134 @@ refDA.on("value", function(snapshot) {
     locationsFromHome.push(toLocation);
     locationsFromOthers.push(toLocation);
     // Manipulate Destination Address DOM to reflect changes:
-    $("#add-destAddressRow").append('<tr class="t-menu__item t-border"><td>'+childSnapshot.val().street+'</td><td>'+childSnapshot.val().city+'</td><td>'+childSnapshot.val().zip+"</td><td>"+childSnapshot.val().destNotes+"</td></tr>");
+    $('#add-destAddressRow').append(
+      '<tr class="t-menu__item t-border"><td>' +
+        childSnapshot.val().street +
+        '</td><td>' +
+        childSnapshot.val().city +
+        '</td><td>' +
+        childSnapshot.val().zip +
+        '</td><td>' +
+        childSnapshot.val().destNotes +
+        '</td></tr>'
+    );
   });
 });
 
 // On-Click function to initiate AJAX call:
 $('#calculate').on('click', function() {
   var directionRequestA = {
-    locations:locationsFromHome,
-    options:optionsFromHome
+    locations: locationsFromHome,
+    options: optionsFromHome
   };
   var directionRequestB = {
-    locations:locationsFromOthers,
-    options:optionsFromOthers
+    locations: locationsFromOthers,
+    options: optionsFromOthers
   };
   $.ajax({
     type: 'POST',
     url: mqRouteFinalURL,
     data: JSON.stringify(directionRequestA),
-    contentType: "application/json",
+    contentType: 'application/json',
     dataType: 'json'
-  })
-    .done(function(mqResponse) {
-        var results = mqResponse;
-        fromAddress = fromLocation.street;
-        $('#sort-by-sdfh').show();
-        var toAddresses = [];
-        for (var i = 1; i < results.locations.length; i++) {
-          var toAddress = {
-            milesFromStart: results.distance[i],
-            tripTime: results.time[i],
-            destAddress: results.locations[i].street,
-            destCity: results.locations[i].adminArea5,
-            destZip: results.locations[i].postalCode
-          }
-          toAddresses.push(toAddress);
-        }
-        toAddresses.sort(function(a, b){return a.milesFromStart - b.milesFromStart});
-        for (var i = 0; i < toAddresses.length; i++){
-          $("#add-DistanceFromHomeRow").append('<tr class="t-menu__item t-border"><td>'+fromAddress+'</td><td>'+toAddresses[i].destAddress+'</td><td>'+toAddresses[i].destCity+'</td><td>'+toAddresses[i].destZip+"</td><td class='centered'>"+toAddresses[i].milesFromStart+"</td><td class='centered'>"+toHHMMSS(toAddresses[i].tripTime)+"</td></tr>");
-        }
+  }).done(function(mqResponse) {
+    var results = mqResponse;
+    fromAddress = fromLocation.street;
+    $('#sort-by-sdfh').show();
+    var toAddresses = [];
+    for (var i = 1; i < results.locations.length; i++) {
+      var toAddress = {
+        milesFromStart: results.distance[i],
+        tripTime: results.time[i],
+        destAddress: results.locations[i].street,
+        destCity: results.locations[i].adminArea5,
+        destZip: results.locations[i].postalCode
+      };
+      toAddresses.push(toAddress);
+    }
+    toAddresses.sort(function(a, b) {
+      return a.milesFromStart - b.milesFromStart;
     });
+    for (var i = 0; i < toAddresses.length; i++) {
+      $('#add-DistanceFromHomeRow').append(
+        '<tr class="t-menu__item t-border"><td>' +
+          fromAddress +
+          '</td><td>' +
+          toAddresses[i].destAddress +
+          '</td><td>' +
+          toAddresses[i].destCity +
+          '</td><td>' +
+          toAddresses[i].destZip +
+          "</td><td class='centered'>" +
+          toAddresses[i].milesFromStart +
+          "</td><td class='centered'>" +
+          toHHMMSS(toAddresses[i].tripTime) +
+          '</td></tr>'
+      );
+    }
+  });
   if (locationsFromOthers < 2) {
-    return $("#add-DistanceBetweenRow").append('<tr><td>This functionality requires 2 or more destination addresses.</td></tr>')
+    return $('#add-DistanceBetweenRow').append(
+      '<tr><td>This functionality requires 2 or more destination addresses.</td></tr>'
+    );
   } else {
     $.ajax({
       type: 'POST',
       url: mqRouteFinalURL,
       data: JSON.stringify(directionRequestB),
-      contentType: "application/json",
+      contentType: 'application/json',
       dataType: 'json'
-    })
-      .done(function(mqResponse) {
-          var results = mqResponse;
-          console.log(results);
-          $('#sort-by-sdfeo').show();
-          var totalAddresses = results.locations.length;
-          var base = -0.5;
-          for (var i = 0; i < totalAddresses; i++) {
-            base += 0.5;
-          }
-          var rendersNeeded = parseFloat(totalAddresses*base);
-          var propertyA = [];
-          var counterC = 0; // This will increment from 0 to 1 on For Loop Child completion
-          var counterD = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
-            for (var i = 0; i < rendersNeeded; i++) { // For Loop Parent  
-                for (var j = counterD; j > 0; j--) { // For Loop Child
-                  propertyA.push(results.locations[counterC].street)
-                }
-                counterC++;
-                counterD--;
-            }
-          var propertyB = [];
-          var counterE = totalAddresses - 1; // Set number equivalent to array length - 1
-          var counterF = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
-          for (var k = 0; k < rendersNeeded; k++) { // For Loop Parent  
-              for (var l = counterF; l > 0; l--) { // For Loop Child
-                propertyB.push(results.locations[counterE].street)
-              }  
-              counterE--;
-              counterF--;
-          }
-          var miles = [results.distance[0][1], results.distance[0][2], results.distance[1][2]];
-          var eta = [results.time[0][1], results.time[0][2], results.time[1][2]];
-          for (var m = 0; m < rendersNeeded; m++) {
-            $("#add-DistanceBetweenRow").append('<tr><td>'+propertyA[m]+'</td><td>'+propertyB[m]+'</td><td class="centered">'+miles[m]+'</td><td class="centered">'+toHHMMSS(eta[m])+'</td></tr>')
-          }  
-      });
-    };
+    }).done(function(mqResponse) {
+      var results = mqResponse;
+      console.log(results);
+      $('#sort-by-sdfeo').show();
+      var totalAddresses = results.locations.length;
+      var base = -0.5;
+      for (var i = 0; i < totalAddresses; i++) {
+        base += 0.5;
+      }
+      var rendersNeeded = parseFloat(totalAddresses * base);
+      var propertyA = [];
+      var counterC = 0; // This will increment from 0 to 1 on For Loop Child completion
+      var counterD = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
+      for (var i = 0; i < rendersNeeded; i++) {
+        // For Loop Parent
+        for (var j = counterD; j > 0; j--) {
+          // For Loop Child
+          propertyA.push(results.locations[counterC].street);
+        }
+        counterC++;
+        counterD--;
+      }
+      var propertyB = [];
+      var counterE = totalAddresses - 1; // Set number equivalent to array length - 1
+      var counterF = rendersNeeded - 1; // This is initially set to 2 and will decrement to 1 on For Loop Child Completion
+      for (var k = 0; k < rendersNeeded; k++) {
+        // For Loop Parent
+        for (var l = counterF; l > 0; l--) {
+          // For Loop Child
+          propertyB.push(results.locations[counterE].street);
+        }
+        counterE--;
+        counterF--;
+      }
+      var miles = [results.distance[0][1], results.distance[0][2], results.distance[1][2]];
+      var eta = [results.time[0][1], results.time[0][2], results.time[1][2]];
+      for (var m = 0; m < rendersNeeded; m++) {
+        $('#add-DistanceBetweenRow').append(
+          '<tr><td>' +
+            propertyA[m] +
+            '</td><td>' +
+            propertyB[m] +
+            '</td><td class="centered">' +
+            miles[m] +
+            '</td><td class="centered">' +
+            toHHMMSS(eta[m]) +
+            '</td></tr>'
+        );
+      }
+    });
+  }
 });
 /*
 

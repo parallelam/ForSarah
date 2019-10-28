@@ -1,7 +1,7 @@
 // Set MapQuest information to variables for future concatenation:
 var mqApiKey = '?key=ZzaGO8COL1AF8qgAd3D4cjIUfXsjKtYC';
-var mqRouteBaseURL = 'http://www.mapquestapi.com/directions/v2/routematrix'
-var mqGeocodeBaseURL = 'http://www.mapquestapi.com/geocoding/v1/address'
+var mqRouteBaseURL = 'https://www.mapquestapi.com/directions/v2/routematrix'
+var mqGeocodeBaseURL = 'https://www.mapquestapi.com/geocoding/v1/address'
 var mqGeoFinalURL = mqGeocodeBaseURL+mqApiKey
 var mqRouteFinalURL = mqRouteBaseURL+mqApiKey
 
